@@ -5,8 +5,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/shubham-yadavv/golang-JWT-Authentication/config"
 	"github.com/shubham-yadavv/golang-JWT-Authentication/models"
 	"golang.org/x/crypto/bcrypt"
@@ -107,8 +107,8 @@ func Login(c *gin.Context) {
 
 	// create token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"email": user.Email,
-		"exp":   time.Now().Add(time.Hour * 24).Unix(),
+		"sub": user.ID,
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
 	})
 
 	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET_KEY")))
@@ -124,22 +124,6 @@ func Login(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": "user logged in",
-	})
-}
-
-func Logout(c *gin.Context) {
-	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie("authtoken", "", -1, "", "", false, true)
-
-	c.JSON(http.StatusOK, gin.H{
-		"success": "user logged out",
-	})
-}
-
-func GetProfile(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"success": "user profile",
-		"user":    c.MustGet("user"),
 	})
 }
 

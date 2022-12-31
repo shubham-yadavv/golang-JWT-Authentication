@@ -1,21 +1,21 @@
 package middleware
 
 import (
+	"net/http"
 	"os"
+	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v4"
+	"github.com/shubham-yadavv/golang-JWT-Authentication/config"
+	"github.com/shubham-yadavv/golang-JWT-Authentication/models"
 )
 
-func RequireAuth(c *gin.Context) {
-
+func Authenticate(c *gin.Context) {
 	tokenString, err := c.Cookie("authtoken")
 
 	if err != nil {
-		c.JSON(401, gin.H{
-			"error": "unauthorized",
-		})
-		c.Abort()
+		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
 
@@ -23,20 +23,27 @@ func RequireAuth(c *gin.Context) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, err
 		}
-		return []byte(os.Getenv("JWT_SECRET")), nil
+
+		return []byte(os.Getenv("SECRET_KEY")), nil
 	})
 
-	if err != nil {
-		c.JSON(401, gin.H{
-			"error": "unauthorized",
-		})
-		c.Abort()
-		return
-	}
-
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		c.Set("user", claims["user"])
+		if float64(time.Now().Unix()) > claims["exp"].(float64) {
+			c.AbortWithStatus(http.StatusUnauthorized)
+		}
+
+		var user models.User
+		config.DB.First(&user, claims["sub"])
+
+		if user.ID == 0 {
+			c.AbortWithStatus(http.StatusUnauthorized)
+		}
+
+		c.Set("user", user)
 		c.Next()
+
+	} else {
+		c.AbortWithStatus(http.StatusUnauthorized)
 	}
 
 }
