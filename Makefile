@@ -4,5 +4,5 @@ build:
 run: build
 	./bin/main
 
-dev: 
+dev:
 	nodemon --exec go run main.go --signal SIGTERM

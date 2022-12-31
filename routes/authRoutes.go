@@ -2,10 +2,14 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	controller "github.com/shubham-yadavv/golang-JWT-Authentication/controllers"
+	"github.com/shubham-yadavv/golang-JWT-Authentication/controllers"
+	"github.com/shubham-yadavv/golang-JWT-Authentication/middleware"
 )
 
 func AuthRoutes(incommingRoutes *gin.Engine) {
-	incommingRoutes.POST("users/signup", controller.Signup())
-	incommingRoutes.POST("users/login", controller.Login())
+
+	incommingRoutes.POST("/signup", controllers.Signup)
+	incommingRoutes.POST("/login", controllers.Login)
+	incommingRoutes.GET("/user", middleware.RequireAuth, controllers.Validate)
+
 }

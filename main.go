@@ -1,32 +1,30 @@
 package main
 
 import (
-	"os"
-
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
+
+	"github.com/shubham-yadavv/golang-JWT-Authentication/config"
 
 	routes "github.com/shubham-yadavv/golang-JWT-Authentication/routes"
 )
 
+func init() {
+	config.LoadEnvVariables()
+	config.ConnectDB()
+	config.SyncDatabase()
+}
+
 func main() {
-	godotenv.Load()
-	port := os.Getenv("PORT")
+	r := gin.Default()
 
-	if port == "" {
-		port = "8080"
-	}
+	routes.AuthRoutes(r)
 
-	router := gin.Default()
-
-	routes.AuthRoutes(router)
-
-	router.GET("/", func(c *gin.Context) {
+	r.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
-			"success": "ok",
+			"success": "ok workkin",
 		})
 	})
 
-	router.Run(":" + port)
+	r.Run()
 
 }
