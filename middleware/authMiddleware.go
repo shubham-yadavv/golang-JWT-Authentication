@@ -47,3 +47,20 @@ func Authenticate(c *gin.Context) {
 	}
 
 }
+
+func AuthoriseRoles(roles ...string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		user, _ := c.Get("user")
+		currentUser := user.(models.User)
+
+		for _, role := range roles {
+			if role == currentUser.Role {
+				c.Next()
+				return
+			}
+		}
+
+		c.AbortWithStatus(http.StatusForbidden)
+
+	}
+}

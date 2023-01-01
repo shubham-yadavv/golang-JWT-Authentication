@@ -127,6 +127,51 @@ func Login(c *gin.Context) {
 	})
 }
 
+func Logout(c *gin.Context) {
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie("authtoken", "", -1, "", "", false, true)
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": "user logged out",
+	})
+}
+
+func GetProfile(c *gin.Context) {
+	// get user from context
+	user := c.MustGet("user").(models.User)
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": "user profile",
+		"user":    user,
+	})
+}
+
+func UpdateRole(c *gin.Context) {
+
+}
+
+func GetUserByID(c *gin.Context) {
+	var user models.User
+
+	config.DB.First(&user, c.Param("id"))
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": "user profile",
+		"user":    user,
+	})
+}
+
+func GetAllUsers(c *gin.Context) {
+	var users []models.User
+
+	config.DB.Find(&users)
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": "all users",
+		"users":   users,
+	})
+}
+
 func Validate(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": "token is valid",

@@ -10,6 +10,7 @@ func AuthRoutes(incommingRoutes *gin.Engine) {
 
 	incommingRoutes.POST("/signup", controllers.Signup)
 	incommingRoutes.POST("/login", controllers.Login)
-	incommingRoutes.GET("/user", middleware.Authenticate, controllers.Validate)
+	incommingRoutes.GET("/logout", controllers.Logout)
+	incommingRoutes.GET("/user", middleware.Authenticate, middleware.AuthoriseRoles("user"), controllers.Validate)
 
 }
